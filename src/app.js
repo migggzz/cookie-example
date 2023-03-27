@@ -6,11 +6,31 @@ const cooks = 'variable cookie'
 
 const app = express();
 
-app.use(cookieParser());
+app.use(cookieParser('s3cr3t'));
 
 app.get('/', (req, res) => {
     res.send('everything works fine fine');
 } );
+
+app.get('/preferences', (req, res) => {
+    let preference = {
+        language: 'en',
+        mode: 'dark',
+        login: 'true'
+    }
+    res.cookie('preferences', JSON.stringify(preference), { maxAge: 90000, httpOnly: true, signed:true }).send('saved preferences in cookie');
+})
+
+app.get('/control-panel', (req, res) => {
+    if (req.signedCookies.preferences) {
+        let modes = JSON.parse(req.signedCookies.preferences);
+        res.send(`your configurations are: MODE = ${modes.mode}  LANGUAGE = ${modes.language}`);
+    }
+    else{
+        res.send('you are not logged in');
+    }
+})
+
 
 // set the cookie
 app.get('/cookie/set', (req, res) => {
