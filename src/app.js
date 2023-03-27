@@ -10,11 +10,11 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
-// app.use(session({
-//     secret: 's3cr3t',
-//     resave: true,
-//     saveUninitialized: true
-// }));
+app.use(session({
+    secret: 's3cr3t',
+    resave: true,
+    saveUninitialized: true
+}));
 
 app.use(cookieParser());
 
@@ -23,11 +23,13 @@ app.use(express.static(__dirname+'/public'));
 
 app.post('/set', (req, res) => {
     let data = {name: req.body.name, email: req.body.email};
-    res.cookie('activity', JSON.stringify(data), {maxAge: 90000}).redirect('/index.html');
+    req.session.activity = JSON.stringify(data);
+    res.redirect('/index.html');
+    // res.cookie('activity', JSON.stringify(data), {maxAge: 90000}).redirect('/index.html');
 })
 
 app.get('/get', (req, res) => {
-    res.json(JSON.parse(req.cookies.activity));
+    res.json(JSON.parse(req.session.activity));
 });
 
 // app.get('/preferences', (req, res) => {
